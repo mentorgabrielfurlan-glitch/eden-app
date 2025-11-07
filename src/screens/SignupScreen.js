@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { Button, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker'; // eslint-disable-line import/no-unresolved
-import { Picker } from '@react-native-picker/picker'; // eslint-disable-line import/no-unresolved
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Picker } from '@react-native-picker/picker';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
 
@@ -14,6 +14,26 @@ const plans = [
   { label: 'Mentorado', value: 'mentorado' },
   { label: 'Master', value: 'master' },
 ];
+
+const isWeb = Platform.OS === 'web';
+
+const webNativeInputStyle = {
+  width: '100%',
+  padding: '14px 12px',
+  borderRadius: 4,
+  borderWidth: 1,
+  borderStyle: 'solid',
+  borderColor: '#cbd5f5',
+  fontSize: 16,
+  outline: 'none',
+  backgroundColor: '#fff',
+};
+
+const webNativeLabelStyle = {
+  marginBottom: 4,
+  color: '#0f172a',
+  fontWeight: '500',
+};
 
 const formatDate = (date) =>
   date
@@ -31,6 +51,29 @@ const formatTime = (time) =>
         minute: '2-digit',
       })
     : '';
+
+const formatDateForInput = (date) => {
+  if (!date) {
+    return '';
+  }
+
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+const formatTimeForInput = (time) => {
+  if (!time) {
+    return '';
+  }
+
+  const hours = `${time.getHours()}`.padStart(2, '0');
+  const minutes = `${time.getMinutes()}`.padStart(2, '0');
+
+  return `${hours}:${minutes}`;
+};
 
 const SignupScreen = () => {
   const [fullName, setFullName] = useState('');
@@ -153,6 +196,35 @@ const SignupScreen = () => {
     }
   };
 
+  const handleWebDateChange = (event) => {
+    const value = event.target.value;
+
+    if (!value) {
+      setBirthDate(null);
+      return;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    const selectedDate = new Date();
+    selectedDate.setHours(0, 0, 0, 0);
+    selectedDate.setFullYear(year, month - 1, day);
+    setBirthDate(selectedDate);
+  };
+
+  const handleWebTimeChange = (event) => {
+    const value = event.target.value;
+
+    if (!value) {
+      setBirthTime(null);
+      return;
+    }
+
+    const [hours, minutes] = value.split(':').map(Number);
+    const selectedTime = new Date();
+    selectedTime.setHours(hours, minutes, 0, 0);
+    setBirthTime(selectedTime);
+  };
+
   return (
     <View style={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>
@@ -208,32 +280,52 @@ const SignupScreen = () => {
         {errors.password}
       </HelperText>
 
-      <Pressable onPress={() => setShowDatePicker(true)}>
-        <View pointerEvents="none">
-          <TextInput
-            label="Data de nascimento"
-            mode="outlined"
-            value={formatDate(birthDate)}
-            style={styles.input}
-            editable={false}
+      {isWeb ? (
+        <View style={styles.webInputContainer}>
+          <Text style={webNativeLabelStyle}>Data de nascimento</Text>
+          <input
+            type="date"
+            value={formatDateForInput(birthDate)}
+            onChange={handleWebDateChange}
+            style={webNativeInputStyle}
           />
         </View>
-      </Pressable>
+      ) : (
+        <TextInput
+          label="Data de nascimento"
+          mode="outlined"
+          value={formatDate(birthDate)}
+          style={styles.input}
+          editable={false}
+          onPressIn={() => setShowDatePicker(true)}
+          right={<TextInput.Icon icon="calendar" />}
+        />
+      )}
       <HelperText type="error" visible={Boolean(errors.birthDate)}>
         {errors.birthDate}
       </HelperText>
 
-      <Pressable onPress={() => setShowTimePicker(true)}>
-        <View pointerEvents="none">
-          <TextInput
-            label="Hora de nascimento"
-            mode="outlined"
-            value={formatTime(birthTime)}
-            style={styles.input}
-            editable={false}
+      {isWeb ? (
+        <View style={styles.webInputContainer}>
+          <Text style={webNativeLabelStyle}>Hora de nascimento</Text>
+          <input
+            type="time"
+            value={formatTimeForInput(birthTime)}
+            onChange={handleWebTimeChange}
+            style={webNativeInputStyle}
           />
         </View>
-      </Pressable>
+      ) : (
+        <TextInput
+          label="Hora de nascimento"
+          mode="outlined"
+          value={formatTime(birthTime)}
+          style={styles.input}
+          editable={false}
+          onPressIn={() => setShowTimePicker(true)}
+          right={<TextInput.Icon icon="clock-outline" />}
+        />
+      )}
       <HelperText type="error" visible={Boolean(errors.birthTime)}>
         {errors.birthTime}
       </HelperText>
@@ -261,7 +353,7 @@ const SignupScreen = () => {
         Cadastrar
       </Button>
 
-      {(showDatePicker || showTimePicker) && (
+      {!isWeb && (showDatePicker || showTimePicker) && (
         <DateTimePicker
           value={showDatePicker ? birthDate ?? new Date() : birthTime ?? new Date()}
           mode={showDatePicker ? 'date' : 'time'}
@@ -296,6 +388,9 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 4,
+  },
+  webInputContainer: {
+    marginBottom: 12,
   },
   pickerContainer: {
     marginTop: 8,
