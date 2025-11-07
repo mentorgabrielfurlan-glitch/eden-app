@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 import { Button, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker'; // eslint-disable-line import/no-unresolved
+import { Picker } from '@react-native-picker/picker'; // eslint-disable-line import/no-unresolved
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
 
