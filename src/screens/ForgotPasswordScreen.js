@@ -2,39 +2,39 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 
 import { auth } from '../services/firebase';
 
-const LoginScreen = () => {
+const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const getFriendlyErrorMessage = (code) => {
     const messages = {
       'auth/invalid-email': 'O endereço de e-mail não é válido.',
       'auth/user-not-found': 'Não encontramos uma conta com esse e-mail.',
-      'auth/wrong-password': 'A senha informada está incorreta.',
       'auth/too-many-requests':
-        'Detectamos muitas tentativas de login. Tente novamente mais tarde.',
+        'Detectamos muitas tentativas. Tente novamente mais tarde.',
     };
 
-    return messages[code] || 'Não foi possível entrar. Verifique os dados e tente novamente.';
+    return messages[code] || 'Não foi possível enviar o e-mail. Tente novamente.';
   };
 
-  const handleLogin = async () => {
+  const handlePasswordReset = async () => {
     if (loading) {
       return;
     }
 
     setErrorMessage('');
+    setSuccessMessage('');
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+      await sendPasswordResetEmail(auth, email.trim());
+      setSuccessMessage('Enviamos um link para redefinição de senha para o seu e-mail.');
     } catch (error) {
       setErrorMessage(getFriendlyErrorMessage(error.code));
     } finally {
@@ -45,7 +45,7 @@ const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>
-        Welcome Back
+        Recuperar senha
       </Text>
       <TextInput
         label="Email"
@@ -57,26 +57,22 @@ const LoginScreen = () => {
         autoComplete="email"
         style={styles.input}
       />
-      <TextInput
-        label="Password"
-        mode="outlined"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        autoComplete="password"
-        style={styles.input}
-      />
       <HelperText type="error" visible={Boolean(errorMessage)}>
         {errorMessage}
       </HelperText>
-      <Button mode="contained" onPress={handleLogin} loading={loading} disabled={loading}>
-        Login
+      <HelperText type="info" visible={Boolean(successMessage)}>
+        {successMessage}
+      </HelperText>
+      <Button
+        mode="contained"
+        onPress={handlePasswordReset}
+        loading={loading}
+        disabled={loading}
+      >
+        Enviar e-mail
       </Button>
-      <Button onPress={() => navigation.navigate('ForgotPassword')} style={styles.link}>
-        Esqueci minha senha
-      </Button>
-      <Button onPress={() => navigation.navigate('Signup')} style={styles.link}>
-        Create an account
+      <Button onPress={() => navigation.navigate('Login')} style={styles.link}>
+        Voltar ao login
       </Button>
     </View>
   );
@@ -101,4 +97,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
+export default ForgotPasswordScreen;
