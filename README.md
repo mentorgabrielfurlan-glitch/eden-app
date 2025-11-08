@@ -29,7 +29,24 @@ export EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000
 export EXPO_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:abcdef123456
 ```
 
-Alternatively, add the same values under the `expo.extra` section of your `app.json`/`app.config.js` so they are available at runtime.
+Alternatively, add the same values under the `expo.extra` section of your `app.json`/`app.config.js` so they are available at runtime. You can keep them either as flat keys or inside a `firebase` object:
+
+```json
+{
+  "expo": {
+    "extra": {
+      "firebase": {
+        "apiKey": "your_api_key",
+        "authDomain": "your-project.firebaseapp.com",
+        "projectId": "your-project",
+        "storageBucket": "your-project.appspot.com",
+        "messagingSenderId": "000000000000",
+        "appId": "1:000000000000:web:abcdef123456"
+      }
+    }
+  }
+}
+```
 
 In the output, you'll find options to open the app in a
 
