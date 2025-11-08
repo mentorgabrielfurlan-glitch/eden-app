@@ -16,6 +16,21 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
+### Configure Firebase
+
+The signup flow depends on Firebase Authentication and Firestore. Before launching the app, provide your Firebase project values using Expo's public environment variables (they are embedded at build time):
+
+```bash
+export EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key
+export EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+export EXPO_PUBLIC_FIREBASE_PROJECT_ID=your-project
+export EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+export EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=000000000000
+export EXPO_PUBLIC_FIREBASE_APP_ID=1:000000000000:web:abcdef123456
+```
+
+Alternatively, add the same values under the `expo.extra` section of your `app.json`/`app.config.js` so they are available at runtime.
+
 In the output, you'll find options to open the app in a
 
 - [development build](https://docs.expo.dev/develop/development-builds/introduction/)
