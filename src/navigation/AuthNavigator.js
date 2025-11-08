@@ -29,7 +29,10 @@ const AuthNavigator = () => (
       name="MeditationPlayer"
       component={MeditationPlayerScreen}
       options={({ route }) => ({
-        title: route?.params?.meditation?.title ?? 'Player de Meditação',
+        title:
+          route?.params?.title ??
+          route?.params?.meditation?.title ??
+          'Player de Meditação',
       })}
     />
     <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Perfil' }} />
