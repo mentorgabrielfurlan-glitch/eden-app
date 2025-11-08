@@ -6,7 +6,7 @@ import { Picker } from '@react-native-picker/picker';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
 
-import { auth, db } from '../services/firebase';
+import { auth, db, isFirebaseConfigured, missingConfigKeys } from '../services/firebase';
 
 const plans = [
   { label: 'Gratuito', value: 'gratuito' },
@@ -89,6 +89,17 @@ const SignupScreen = () => {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ visible: false, message: '', isError: false });
 
+  const firebaseEnvVars = useMemo(
+    () =>
+      missingConfigKeys.map(
+        (key) => `EXPO_PUBLIC_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`
+      ),
+    [missingConfigKeys]
+  );
+
+  const isSignupDisabled = !isFirebaseConfigured;
+  const areInputsDisabled = isSignupDisabled || loading;
+
   const combinedBirthDateTime = useMemo(() => {
     if (!birthDate || !birthTime) {
       return null;
@@ -146,6 +157,15 @@ const SignupScreen = () => {
   };
 
   const handleSignup = async () => {
+    if (isSignupDisabled) {
+      setSnackbar({
+        visible: true,
+        message: 'Configure o Firebase para habilitar o cadastro.',
+        isError: true,
+      });
+      return;
+    }
+
     if (!validate()) {
       return;
     }
@@ -231,6 +251,21 @@ const SignupScreen = () => {
         Criar conta
       </Text>
 
+      {isSignupDisabled && (
+        <View style={styles.configAlert}>
+          <Text style={styles.configAlertTitle}>Configure o Firebase</Text>
+          <Text style={styles.configAlertBody}>
+            Defina as variáveis de ambiente abaixo (via expo.extra ou EXPO_PUBLIC_*) antes de executar o app para
+            habilitar o cadastro:
+          </Text>
+          {firebaseEnvVars.map((envVar) => (
+            <Text key={envVar} style={styles.configAlertEnv}>
+              {envVar}
+            </Text>
+          ))}
+        </View>
+      )}
+
       <TextInput
         label="Nome completo"
         mode="outlined"
@@ -238,6 +273,7 @@ const SignupScreen = () => {
         onChangeText={setFullName}
         style={styles.input}
         autoCapitalize="words"
+        disabled={areInputsDisabled}
       />
       <HelperText type="error" visible={Boolean(errors.fullName)}>
         {errors.fullName}
@@ -251,6 +287,7 @@ const SignupScreen = () => {
         style={styles.input}
         keyboardType="email-address"
         autoCapitalize="none"
+        disabled={areInputsDisabled}
       />
       <HelperText type="error" visible={Boolean(errors.email)}>
         {errors.email}
@@ -263,6 +300,7 @@ const SignupScreen = () => {
         onChangeText={setPhone}
         style={styles.input}
         keyboardType="phone-pad"
+        disabled={areInputsDisabled}
       />
       <HelperText type="error" visible={Boolean(errors.phone)}>
         {errors.phone}
@@ -275,6 +313,7 @@ const SignupScreen = () => {
         onChangeText={setPassword}
         style={styles.input}
         secureTextEntry
+        disabled={areInputsDisabled}
       />
       <HelperText type="error" visible={Boolean(errors.password)}>
         {errors.password}
@@ -288,6 +327,7 @@ const SignupScreen = () => {
             value={formatDateForInput(birthDate)}
             onChange={handleWebDateChange}
             style={webNativeInputStyle}
+            disabled={areInputsDisabled}
           />
         </View>
       ) : (
@@ -299,6 +339,7 @@ const SignupScreen = () => {
           editable={false}
           onPressIn={() => setShowDatePicker(true)}
           right={<TextInput.Icon icon="calendar" />}
+          disabled={areInputsDisabled}
         />
       )}
       <HelperText type="error" visible={Boolean(errors.birthDate)}>
@@ -313,6 +354,7 @@ const SignupScreen = () => {
             value={formatTimeForInput(birthTime)}
             onChange={handleWebTimeChange}
             style={webNativeInputStyle}
+            disabled={areInputsDisabled}
           />
         </View>
       ) : (
@@ -324,6 +366,7 @@ const SignupScreen = () => {
           editable={false}
           onPressIn={() => setShowTimePicker(true)}
           right={<TextInput.Icon icon="clock-outline" />}
+          disabled={areInputsDisabled}
         />
       )}
       <HelperText type="error" visible={Boolean(errors.birthTime)}>
@@ -339,6 +382,7 @@ const SignupScreen = () => {
           onValueChange={setPlan}
           style={styles.picker}
           dropdownIconColor="#0f172a"
+          enabled={!areInputsDisabled}
         >
           {plans.map((planOption) => (
             <Picker.Item key={planOption.value} label={planOption.label} value={planOption.value} />
@@ -349,11 +393,17 @@ const SignupScreen = () => {
         {errors.plan}
       </HelperText>
 
-      <Button mode="contained" onPress={handleSignup} loading={loading} disabled={loading} style={styles.submitButton}>
+      <Button
+        mode="contained"
+        onPress={handleSignup}
+        loading={loading}
+        disabled={areInputsDisabled}
+        style={styles.submitButton}
+      >
         Cadastrar
       </Button>
 
-      {!isWeb && (showDatePicker || showTimePicker) && (
+      {!isWeb && !areInputsDisabled && (showDatePicker || showTimePicker) && (
         <DateTimePicker
           value={showDatePicker ? birthDate ?? new Date() : birthTime ?? new Date()}
           mode={showDatePicker ? 'date' : 'time'}
@@ -385,6 +435,28 @@ const styles = StyleSheet.create({
   title: {
     marginBottom: 16,
     textAlign: 'center',
+  },
+  configAlert: {
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 8,
+    backgroundColor: '#fff4e6',
+    borderWidth: 1,
+    borderColor: '#f97316',
+  },
+  configAlertTitle: {
+    fontWeight: '700',
+    color: '#c2410c',
+    marginBottom: 8,
+  },
+  configAlertBody: {
+    color: '#9a3412',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  configAlertEnv: {
+    color: '#9a3412',
+    fontFamily: Platform.select({ web: 'monospace', default: undefined }),
   },
   input: {
     marginBottom: 4,

@@ -22,21 +22,23 @@ const missingConfigKeys = Object.entries(firebaseConfig)
   .filter(([, value]) => !value)
   .map(([key]) => key);
 
-if (missingConfigKeys.length) {
+const isFirebaseConfigured = missingConfigKeys.length === 0;
+
+if (!isFirebaseConfigured) {
   const readableKeys = missingConfigKeys
     .map((key) => `EXPO_PUBLIC_FIREBASE_${toEnvKey(key)}`)
     .join(', ');
 
-  throw new Error(
-    `Firebase configuration is incomplete. Please define the following environment variables: ${readableKeys}.\n` +
-      'You can add them to your app config via expo.extra or set them as EXPO_PUBLIC_* env vars before starting Expo.'
+  console.warn(
+    `Firebase configuration is incomplete. The following environment variables are missing: ${readableKeys}.\n` +
+      'Define them in your Expo app config (expo.extra) or as EXPO_PUBLIC_* env vars before starting Expo to enable the signup flow.'
   );
 }
 
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+const app = isFirebaseConfigured ? (getApps().length ? getApp() : initializeApp(firebaseConfig)) : null;
 
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
+const auth = app ? getAuth(app) : null;
+const db = app ? getFirestore(app) : null;
+const storage = app ? getStorage(app) : null;
 
-export { app, auth, db, storage };
+export { app, auth, db, storage, isFirebaseConfigured, missingConfigKeys };
