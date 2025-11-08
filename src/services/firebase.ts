@@ -27,6 +27,15 @@ const REQUIRED_CONFIG_KEYS: (keyof FirebaseConfig)[] = [
   'appId',
 ];
 
+const DEFAULT_FIREBASE_CONFIG: FirebaseConfig = {
+  apiKey: 'FIREBASE_API_KEY',
+  authDomain: 'your-project.firebaseapp.com',
+  projectId: 'your-project-id',
+  storageBucket: 'your-project-id.appspot.com',
+  messagingSenderId: '00000000000',
+  appId: '1:00000000000:web:placeholder',
+};
+
 const resolveFirebaseConfig = (): FirebaseConfig => {
   type FirebaseExtra = Partial<FirebaseConfig> | undefined;
 
@@ -51,21 +60,26 @@ const resolveFirebaseConfig = (): FirebaseConfig => {
     {}
   ) as FirebaseExtra;
 
-  const config: Partial<FirebaseConfig> = {
+  const config: FirebaseConfig = {
+    ...DEFAULT_FIREBASE_CONFIG,
     ...extraConfig,
     ...envConfig,
   };
 
-  const missingKeys = REQUIRED_CONFIG_KEYS.filter((key) => !config[key]);
+  const missingKeys = REQUIRED_CONFIG_KEYS.filter((key) => {
+    const value = config[key];
+    return !value || value === DEFAULT_FIREBASE_CONFIG[key];
+  });
 
   if (missingKeys.length) {
-    const missingList = missingKeys.join(', ');
-    throw new Error(
-      `Missing Firebase configuration values for: ${missingList}. Provide them via EXPO_PUBLIC_FIREBASE_* env vars or expo.extra.firebase.`,
+    console.warn(
+      `Firebase configuration is missing real values for: ${missingKeys.join(
+        ', ',
+      )}. Using placeholder defaults — authentication will fail until these are configured.`,
     );
   }
 
-  return config as FirebaseConfig;
+  return config;
 };
 
 const firebaseConfig = resolveFirebaseConfig();
