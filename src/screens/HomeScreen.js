@@ -17,6 +17,13 @@ const HomeScreen = () => {
       <Button mode="contained" onPress={() => navigation.navigate('Profile')} style={styles.button}>
         Ir para o perfil
       </Button>
+      <Button
+        mode="outlined"
+        onPress={() => navigation.navigate('Meditations')}
+        style={styles.button}
+      >
+        Explorar meditações
+      </Button>
     </View>
   );
 };
