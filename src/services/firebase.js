@@ -1,10 +1,23 @@
 import Constants from 'expo-constants';
+import appJson from '../../app.json';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-const extraConfig = Constants?.expoConfig?.extra ?? Constants?.manifest?.extra ?? {};
+const resolveExtraConfig = () => {
+  const sources = [Constants?.expoConfig?.extra, Constants?.manifest?.extra, appJson?.expo?.extra];
+
+  for (const source of sources) {
+    if (source && typeof source === 'object' && Object.keys(source).length > 0) {
+      return source;
+    }
+  }
+
+  return {};
+};
+
+const extraConfig = resolveExtraConfig();
 
 const firebaseConfigKeys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
 
