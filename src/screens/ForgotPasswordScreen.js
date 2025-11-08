@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { sendPasswordResetEmail } from 'firebase/auth';
-
-import { auth } from '../services/firebase';
+import { requestPasswordReset } from '../services/authService';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
@@ -19,6 +17,7 @@ const ForgotPasswordScreen = () => {
       'auth/user-not-found': 'Não encontramos uma conta com esse e-mail.',
       'auth/too-many-requests':
         'Detectamos muitas tentativas. Tente novamente mais tarde.',
+      'local/user-not-found': 'Não encontramos uma conta com esse e-mail.',
     };
 
     return messages[code] || 'Não foi possível enviar o e-mail. Tente novamente.';
@@ -33,8 +32,14 @@ const ForgotPasswordScreen = () => {
     setSuccessMessage('');
     setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, email.trim());
-      setSuccessMessage('Enviamos um link para redefinição de senha para o seu e-mail.');
+      const response = await requestPasswordReset(email);
+      if (response.origin === 'local') {
+        setSuccessMessage(
+          `Modo offline: definimos uma senha temporária (${response.temporaryPassword}) para que você possa entrar novamente.`
+        );
+      } else {
+        setSuccessMessage('Enviamos um link para redefinição de senha para o seu e-mail.');
+      }
     } catch (error) {
       setErrorMessage(getFriendlyErrorMessage(error.code));
     } finally {

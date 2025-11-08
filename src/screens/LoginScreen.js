@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-
-import { auth } from '../services/firebase';
+import { loginUser } from '../services/authService';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -20,6 +18,7 @@ const LoginScreen = () => {
       'auth/wrong-password': 'A senha informada está incorreta.',
       'auth/too-many-requests':
         'Detectamos muitas tentativas de login. Tente novamente mais tarde.',
+      'local/invalid-credentials': 'Não foi possível encontrar uma conta com esses dados.',
     };
 
     return messages[code] || 'Não foi possível entrar. Verifique os dados e tente novamente.';
@@ -33,7 +32,7 @@ const LoginScreen = () => {
     setErrorMessage('');
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
+      await loginUser(email, password);
       navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
     } catch (error) {
       setErrorMessage(getFriendlyErrorMessage(error.code));

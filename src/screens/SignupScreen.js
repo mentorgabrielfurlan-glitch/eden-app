@@ -3,16 +3,8 @@ import { Platform, StyleSheet, View } from 'react-native';
 import { Button, HelperText, Snackbar, Text, TextInput } from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
-
-import {
-  auth,
-  db,
-  isFirebaseConfigured,
-  missingConfigKeys,
-  firebaseConfigKeyInfo,
-} from '../services/firebase';
+import { signUpUser } from '../services/authService';
+import { isFirebaseConfigured, missingConfigKeys, firebaseConfigKeyInfo } from '../services/firebase';
 
 const plans = [
   { label: 'Gratuito', value: 'gratuito' },
@@ -111,8 +103,8 @@ const SignupScreen = () => {
     []
   );
 
-  const isSignupDisabled = !isFirebaseConfigured;
-  const areInputsDisabled = isSignupDisabled || loading;
+  const showFirebaseConfigAlert = !isFirebaseConfigured;
+  const areInputsDisabled = loading;
 
   const combinedBirthDateTime = useMemo(() => {
     if (!birthDate || !birthTime) {
@@ -171,33 +163,27 @@ const SignupScreen = () => {
   };
 
   const handleSignup = async () => {
-    if (isSignupDisabled) {
-      setSnackbar({
-        visible: true,
-        message: 'Configure o Firebase para habilitar o cadastro.',
-        isError: true,
-      });
-      return;
-    }
-
     if (!validate()) {
       return;
     }
 
     setLoading(true);
     try {
-      const { user } = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-
-      await setDoc(doc(db, 'users', user.uid), {
+      const result = await signUpUser({
         fullName: fullName.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim(),
-        birthDate: combinedBirthDateTime ? Timestamp.fromDate(combinedBirthDateTime) : null,
+        password,
+        birthDate: combinedBirthDateTime ?? null,
         plan,
-        createdAt: serverTimestamp(),
       });
 
-      setSnackbar({ visible: true, message: 'Cadastro realizado com sucesso!', isError: false });
+      const message =
+        result.origin === 'local'
+          ? 'Cadastro realizado com sucesso (modo offline). Seus dados estão salvos apenas neste dispositivo.'
+          : 'Cadastro realizado com sucesso!';
+
+      setSnackbar({ visible: true, message, isError: false });
       setFullName('');
       setEmail('');
       setPhone('');
@@ -206,9 +192,24 @@ const SignupScreen = () => {
       setBirthTime(null);
       setPlan('gratuito');
     } catch (error) {
+      const firebaseErrorMessages = {
+        'auth/email-already-in-use': 'Já existe uma conta com esse e-mail.',
+        'auth/invalid-email': 'Formato de e-mail inválido.',
+        'auth/weak-password': 'A senha deve ter pelo menos 6 caracteres.',
+        'auth/operation-not-allowed':
+          'O método de cadastro está desabilitado. Ative o provedor Email/Password no Firebase Authentication.',
+        'auth/configuration-not-found':
+          'O projeto Firebase informado não está pronto para autenticação. Verifique a configuração das APIs.',
+      };
+
+      const friendlyMessage =
+        error?.code === 'local/email-exists'
+          ? 'Este e-mail já foi cadastrado anteriormente (modo offline).'
+          : firebaseErrorMessages[error?.code] ?? error?.message ?? 'Não foi possível concluir o cadastro.';
+
       setSnackbar({
         visible: true,
-        message: error?.message ?? 'Não foi possível concluir o cadastro.',
+        message: friendlyMessage,
         isError: true,
       });
     } finally {
@@ -265,7 +266,7 @@ const SignupScreen = () => {
         Criar conta
       </Text>
 
-      {isSignupDisabled && (
+      {showFirebaseConfigAlert && (
         <View style={styles.configAlert}>
           <Text style={styles.configAlertTitle}>Configure o Firebase</Text>
           <Text style={styles.configAlertBody}>

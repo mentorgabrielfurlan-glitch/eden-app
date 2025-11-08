@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { ActivityIndicator, Button, HelperText, Text, TextInput } from 'react-native-paper';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 
-import { auth, db } from '../services/firebase';
+import { fetchUserProfile, updateUserProfile } from '../services/authService';
 
 const initialState = {
   phone: '',
@@ -20,28 +19,19 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const currentUser = auth.currentUser;
-
-      if (!currentUser) {
-        setErrorMessage('Nenhum usuário logado.');
-        setLoading(false);
-        return;
-      }
-
       try {
-        const userRef = doc(db, 'users', currentUser.uid);
-        const snapshot = await getDoc(userRef);
-
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          setProfile({
-            phone: data.phone || '',
-            birthTime: data.birthTime || '',
-            plan: data.plan || '',
-          });
-        }
-      } catch (_error) {
-        setErrorMessage('Não foi possível carregar os dados do perfil.');
+        const { profile } = await fetchUserProfile();
+        setProfile({
+          phone: profile.phone ?? '',
+          birthTime: profile.birthTime ?? '',
+          plan: profile.plan ?? '',
+        });
+      } catch (error) {
+        const message =
+          error?.code === 'local/no-user'
+            ? 'Nenhum usuário autenticado. Entre novamente para acessar o perfil.'
+            : 'Não foi possível carregar os dados do perfil.';
+        setErrorMessage(message);
       } finally {
         setLoading(false);
       }
@@ -57,23 +47,19 @@ const ProfileScreen = () => {
   };
 
   const handleSave = async () => {
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-      setErrorMessage('Não há usuário autenticado.');
-      return;
-    }
-
     setSaving(true);
     setErrorMessage('');
     setSuccessMessage('');
 
     try {
-      const userRef = doc(db, 'users', currentUser.uid);
-      await setDoc(userRef, profile, { merge: true });
+      await updateUserProfile(profile);
       setSuccessMessage('Perfil atualizado com sucesso!');
-    } catch (_error) {
-      setErrorMessage('Não foi possível salvar as alterações. Tente novamente.');
+    } catch (error) {
+      const message =
+        error?.code === 'local/no-user'
+          ? 'Nenhum usuário autenticado no modo offline. Faça login novamente.'
+          : 'Não foi possível salvar as alterações. Tente novamente.';
+      setErrorMessage(message);
     } finally {
       setSaving(false);
     }
