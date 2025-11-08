@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { initializeApp, FirebaseApp, getApps } from 'firebase/app';
 import { getAuth, Auth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
@@ -8,7 +9,25 @@ let firebaseAuth: Auth | null = null;
 let firebaseFirestore: Firestore | null = null;
 let firebaseStorage: FirebaseStorage | null = null;
 
-const firebaseConfig = {
+type FirebaseConfig = {
+  apiKey: string;
+  authDomain: string;
+  projectId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  appId: string;
+};
+
+const REQUIRED_CONFIG_KEYS: (keyof FirebaseConfig)[] = [
+  'apiKey',
+  'authDomain',
+  'projectId',
+  'storageBucket',
+  'messagingSenderId',
+  'appId',
+];
+
+const DEFAULT_FIREBASE_CONFIG: FirebaseConfig = {
   apiKey: 'FIREBASE_API_KEY',
   authDomain: 'your-project.firebaseapp.com',
   projectId: 'your-project-id',
@@ -16,6 +35,54 @@ const firebaseConfig = {
   messagingSenderId: '00000000000',
   appId: '1:00000000000:web:placeholder',
 };
+
+const resolveFirebaseConfig = (): FirebaseConfig => {
+  type FirebaseExtra = Partial<FirebaseConfig> | undefined;
+
+  const env = (typeof process !== 'undefined' ? process.env : undefined) as
+    | Record<string, string | undefined>
+    | undefined;
+
+  const envConfig: Partial<FirebaseConfig> = {
+    apiKey: env?.EXPO_PUBLIC_FIREBASE_API_KEY,
+    authDomain: env?.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: env?.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: env?.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: env?.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: env?.EXPO_PUBLIC_FIREBASE_APP_ID,
+  };
+
+  const extraConfig = (
+    Constants?.expoConfig?.extra?.firebase ??
+    Constants?.manifest?.extra?.firebase ??
+    (Constants?.manifest2 as { extra?: { expoClient?: { extra?: { firebase?: FirebaseExtra } } } })?.extra
+      ?.expoClient?.extra?.firebase ??
+    {}
+  ) as FirebaseExtra;
+
+  const config: FirebaseConfig = {
+    ...DEFAULT_FIREBASE_CONFIG,
+    ...extraConfig,
+    ...envConfig,
+  };
+
+  const missingKeys = REQUIRED_CONFIG_KEYS.filter((key) => {
+    const value = config[key];
+    return !value || value === DEFAULT_FIREBASE_CONFIG[key];
+  });
+
+  if (missingKeys.length) {
+    console.warn(
+      `Firebase configuration is missing real values for: ${missingKeys.join(
+        ', ',
+      )}. Using placeholder defaults — authentication will fail until these are configured.`,
+    );
+  }
+
+  return config;
+};
+
+const firebaseConfig = resolveFirebaseConfig();
 
 /**
  * Inicializa o SDK do Firebase (v9 modular). Substitua os valores acima por variáveis de ambiente
