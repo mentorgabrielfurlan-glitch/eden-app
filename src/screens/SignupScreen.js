@@ -108,7 +108,7 @@ const SignupScreen = () => {
           extraPaths: uniqueExtraPaths,
         };
       }),
-    [missingConfigKeys]
+    []
   );
 
   const isSignupDisabled = !isFirebaseConfigured;
