@@ -42,16 +42,6 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    },
-    "extra": {
-      "firebase": {
-        "apiKey": "AIzaSyDuv0vsq4pEpajwf4vfTw55ke4OeVOkDog",
-        "authDomain": "eden-12efc.firebaseapp.com",
-        "projectId": "eden-12efc",
-        "storageBucket": "eden-12efc.firebasestorage.app",
-        "messagingSenderId": "522623466237",
-        "appId": "1:522623466237:web:dce536449b1f41e9c39c94"
-      }
     }
   }
 }
