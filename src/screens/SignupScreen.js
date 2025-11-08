@@ -6,7 +6,13 @@ import { Picker } from '@react-native-picker/picker';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
 
-import { auth, db, isFirebaseConfigured, missingConfigKeys } from '../services/firebase';
+import {
+  auth,
+  db,
+  isFirebaseConfigured,
+  missingConfigKeys,
+  firebaseConfigKeyInfo,
+} from '../services/firebase';
 
 const plans = [
   { label: 'Gratuito', value: 'gratuito' },
@@ -89,11 +95,19 @@ const SignupScreen = () => {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ visible: false, message: '', isError: false });
 
-  const firebaseEnvVars = useMemo(
+  const firebaseConfigHints = useMemo(
     () =>
-      missingConfigKeys.map(
-        (key) => `EXPO_PUBLIC_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`
-      ),
+      missingConfigKeys.map((key) => {
+        const info = firebaseConfigKeyInfo[key] ?? {
+          envVar: `EXPO_PUBLIC_FIREBASE_${key.replace(/([A-Z])/g, '_$1').toUpperCase()}`,
+          extraPaths: [],
+        };
+        const uniqueExtraPaths = Array.from(new Set((info.extraPaths ?? []).filter(Boolean)));
+        return {
+          envVar: info.envVar,
+          extraPaths: uniqueExtraPaths,
+        };
+      }),
     [missingConfigKeys]
   );
 
@@ -258,9 +272,10 @@ const SignupScreen = () => {
             Defina as variáveis de ambiente abaixo (via expo.extra ou EXPO_PUBLIC_*) antes de executar o app para
             habilitar o cadastro:
           </Text>
-          {firebaseEnvVars.map((envVar) => (
+          {firebaseConfigHints.map(({ envVar, extraPaths }) => (
             <Text key={envVar} style={styles.configAlertEnv}>
               {envVar}
+              {extraPaths.length > 0 ? ` (ou ${extraPaths.join(' / ')})` : ''}
             </Text>
           ))}
         </View>
