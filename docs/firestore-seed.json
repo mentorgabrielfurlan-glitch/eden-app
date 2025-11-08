@@ -1,0 +1,171 @@
+{
+  "meditations": [
+    {
+      "id": "med_01",
+      "title": "Raiz da Calma",
+      "description": "Ancoragem rápida para reduzir ansiedade.",
+      "duration_seconds": 420,
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_01.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee",
+      "tags": ["calma", "respiracao"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_02",
+      "title": "Despertar Solar",
+      "description": "Respiração matinal para despertar o corpo.",
+      "duration_seconds": 360,
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_02.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1528740561666-dc2479dc08ab",
+      "tags": ["manha", "energia"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_03",
+      "title": "Intuição Noturna",
+      "description": "Visualização guiada antes de dormir.",
+      "duration_seconds": 600,
+      "level": "intermediario",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_03.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
+      "tags": ["sono", "intencao"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_04",
+      "title": "Metta Compassivo",
+      "description": "Prática de amor-bondade para ampliar empatia.",
+      "duration_seconds": 540,
+      "level": "intermediario",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_04.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429",
+      "tags": ["compaixao", "relacionamentos"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_05",
+      "title": "Vibração Criativa",
+      "description": "Micro-meditação para desbloquear criatividade.",
+      "duration_seconds": 300,
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_05.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70",
+      "tags": ["criatividade"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_06",
+      "title": "Pulso da Terra",
+      "description": "Conexão com elementos naturais.",
+      "duration_seconds": 780,
+      "level": "avancado",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_06.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1470770903676-69b98201ea1c",
+      "tags": ["natureza", "grounding"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_07",
+      "title": "Ciclos da Lua",
+      "description": "Ritual guiado para definição de intenções.",
+      "duration_seconds": 900,
+      "level": "intermediario",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_07.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267",
+      "tags": ["ritual", "lua"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_08",
+      "title": "Respirar & Soltar",
+      "description": "Relaxamento muscular progressivo guiado.",
+      "duration_seconds": 660,
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_08.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1526498460520-4c246339dccb",
+      "tags": ["relaxamento", "stress"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_09",
+      "title": "Intenção do Dia",
+      "description": "Prática curta para definir foco diário.",
+      "duration_seconds": 240,
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_09.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1500534623283-312aade485b7",
+      "tags": ["produtividade", "foco"],
+      "language": "pt-BR"
+    },
+    {
+      "id": "med_10",
+      "title": "Restauração Noturna",
+      "description": "Relaxamento profundo para recuperação.",
+      "duration_seconds": 840,
+      "level": "avancado",
+      "audio_url": "https://storage.googleapis.com/eden/audio/med_10.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
+      "tags": ["sono", "recuperacao"],
+      "language": "pt-BR"
+    }
+  ],
+  "breathings": [
+    {
+      "id": "bre_01",
+      "title": "Box Breathing",
+      "description": "Respiração em caixas 4-4-4-4.",
+      "duration_seconds": 180,
+      "pattern": "4-4-4-4",
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/bre_01.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f",
+      "tags": ["foco"]
+    },
+    {
+      "id": "bre_02",
+      "title": "Respiração Ujjayi",
+      "description": "Aquecimento respiratório para yoga.",
+      "duration_seconds": 300,
+      "pattern": "4-4",
+      "level": "intermediario",
+      "audio_url": "https://storage.googleapis.com/eden/audio/bre_02.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1517329782449-810562a4ec2b",
+      "tags": ["yoga", "energia"]
+    },
+    {
+      "id": "bre_03",
+      "title": "Respiração Coerente",
+      "description": "Equilíbrio cardíaco com ciclo 6-6.",
+      "duration_seconds": 360,
+      "pattern": "6-6",
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/bre_03.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1521587760476-6c12a4b040da",
+      "tags": ["equilibrio", "calma"]
+    },
+    {
+      "id": "bre_04",
+      "title": "Respiração 4-7-8",
+      "description": "Técnica para relaxamento rápido.",
+      "duration_seconds": 240,
+      "pattern": "4-7-8",
+      "level": "iniciante",
+      "audio_url": "https://storage.googleapis.com/eden/audio/bre_04.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1499084732479-de2c02d45fc4",
+      "tags": ["sono", "calma"]
+    },
+    {
+      "id": "bre_05",
+      "title": "Respiração Wim Hof",
+      "description": "Série energizante com retenções longas.",
+      "duration_seconds": 420,
+      "pattern": "30-15",
+      "level": "avancado",
+      "audio_url": "https://storage.googleapis.com/eden/audio/bre_05.mp3",
+      "cover_url": "https://images.unsplash.com/photo-1470770841072-f978cf4d019e",
+      "tags": ["energia", "resiliencia"]
+    }
+  ]
+}
